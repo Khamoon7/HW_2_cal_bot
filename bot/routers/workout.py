@@ -48,7 +48,8 @@ async def log_workout(message: Message, state: FSMContext) -> None:
     Команда /log_workout - запуск сценария логирования тренировки.
     """
     await message.answer(
-        "Введите тип тренировки (например: бег):",
+        "Какая была тренировка? 🏋️\n"
+        "Например: бег, зал, йога",
         reply_markup=hide_menu(),
     )
     await state.set_state(WorkoutFSM.type_)
@@ -61,7 +62,7 @@ async def workout_type(message: Message, state: FSMContext) -> None:
     """
     workout_type_text = (message.text or "").strip()
     if not workout_type_text:
-        await message.answer("Тип пустой. Напишите, например: бег")
+        await message.answer("Тип пустой. Напиши, например: бег")
         return
 
     await state.update_data(type=workout_type_text)
@@ -76,7 +77,7 @@ async def workout_minutes(message: Message, state: FSMContext) -> None:
     """
     mins = _parse_int(message.text or "")
     if mins is None or mins <= 0 or mins > 600:
-        await message.answer("Введите минуты (1..600), например 30.")
+        await message.answer("Введи минуты (1..600), например 30.")
         return
 
     await state.update_data(minutes=mins)

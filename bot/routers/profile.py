@@ -58,7 +58,12 @@ async def start_profile_flow(message: Message, state: FSMContext) -> None:
     Запускает процесс заполнения профиля (с первого шага: выбор пола).
     """
     await state.set_state(ProfileFSM.sex)
-    await message.answer("Давай настроим профиль.\nВыбери пол:", reply_markup=kb_sex())
+    await message.answer(
+        "Давай настроим профиль 👇\n"
+        "Это нужно, чтобы я правильно считал калории и воду.\n\n"
+        "Для начала - выбери пол:",
+        reply_markup=kb_sex(),
+    )
 
 
 @router.message(Command("set_profile"))
@@ -79,7 +84,7 @@ async def pick_sex(callback: CallbackQuery, state: FSMContext) -> None:
     await state.update_data(sex=sex)
 
     await state.set_state(ProfileFSM.weight)
-    await callback.message.answer("Введите вес (кг), например 80:")
+    await callback.message.answer("Сколько вес? (кг)\nНапример: 80")
     await callback.answer()
 
 
@@ -90,12 +95,12 @@ async def pick_weight(message: Message, state: FSMContext) -> None:
     """
     w = _parse_float(message.text or "")
     if w is None or w <= 0 or w > 500:
-        await message.answer("Не понял вес. Введите число в кг, например 80.")
+        await message.answer("Не понял вес 😅\nНапиши число в кг, например: 80")
         return
 
     await state.update_data(weight=w)
     await state.set_state(ProfileFSM.height)
-    await message.answer("Введите рост (см), например 184:")
+    await message.answer("Сколько рост? (см)\nНапример: 184")
 
 
 @router.message(ProfileFSM.height)
@@ -105,12 +110,12 @@ async def pick_height(message: Message, state: FSMContext) -> None:
     """
     h = _parse_float(message.text or "")
     if h is None or h <= 0 or h > 300:
-        await message.answer("Не понял рост. Введите число в см, например 184.")
+        await message.answer("Не понял рост 😅\nНапиши в см, например: 184")
         return
 
     await state.update_data(height=h)
     await state.set_state(ProfileFSM.age)
-    await message.answer("Введите возраст (лет), например 26:")
+    await message.answer("Сколько лет?\nНапример: 26")
 
 
 @router.message(ProfileFSM.age)
@@ -120,12 +125,12 @@ async def pick_age(message: Message, state: FSMContext) -> None:
     """
     a = _parse_int(message.text or "")
     if a is None or a <= 0 or a > 120:
-        await message.answer("Не понял возраст. Введите целое число, например 26.")
+        await message.answer("Не понял возраст 😅\nНапиши целое число, например: 26")
         return
 
     await state.update_data(age=a)
     await state.set_state(ProfileFSM.activity)
-    await message.answer("Сколько минут активности у вас в день? (например 45)")
+    await message.answer("Сколько минут активности у тебя в день?\nНапример: 45")
 
 
 @router.message(ProfileFSM.activity)
@@ -140,7 +145,7 @@ async def pick_activity(message: Message, state: FSMContext) -> None:
 
     await state.update_data(activity=act)
     await state.set_state(ProfileFSM.city)
-    await message.answer("В каком городе вы находитесь? (например Москва)")
+    await message.answer("В каком городе ты находишься?\nНапример: Москва)")
 
 
 @router.message(ProfileFSM.city)
@@ -150,12 +155,12 @@ async def pick_city(message: Message, state: FSMContext) -> None:
     """
     city = (message.text or "").strip()
     if not city:
-        await message.answer("Город пустой. Введите город, например Москва.")
+        await message.answer("Город пустой 🙃\nНапиши, например: Москва")
         return
 
     await state.update_data(city=city)
     await state.set_state(ProfileFSM.goal)
-    await message.answer("Какова ваша цель?", reply_markup=kb_goal())
+    await message.answer("Какая твоя цель?", reply_markup=kb_goal())
 
 
 @router.callback_query(ProfileFSM.goal, F.data.startswith("goal:"))
@@ -168,7 +173,7 @@ async def pick_goal(callback: CallbackQuery, state: FSMContext) -> None:
 
     await state.set_state(ProfileFSM.manual_cal)
     await callback.message.answer(
-        "Хотите задать цель по калориям вручную?",
+        "Хочешь задать цель по калориям вручную?",
         reply_markup=kb_yesno("manualcal"),
     )
     await callback.answer()
@@ -186,7 +191,7 @@ async def pick_manual(
     ans = callback.data.split(":", 1)[1]
     if ans == "yes":
         await state.set_state(ProfileFSM.manual_cal_value)
-        await callback.message.answer("Введите вашу цель по калориям (ккал/день), например 2300:")
+        await callback.message.answer("Введи цель по калориям (ккал/день), например 2300:")
     else:
         await state.update_data(calorie_goal_manual=None)
         await _save_profile_and_finish(
@@ -210,7 +215,7 @@ async def manual_cal_value(
     """
     val = _parse_int(message.text or "")
     if val is None or val < 800 or val > 8000:
-        await message.answer("Введите адекватное число калорий (800..8000), например 2300.")
+        await message.answer("Введи нормальное число калорий (800..8000), например 2300.")
         return
 
     await state.update_data(calorie_goal_manual=val)

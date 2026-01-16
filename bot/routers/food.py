@@ -53,7 +53,7 @@ async def log_food(message: Message, state: FSMContext) -> None:
     Команда /log_food - запускает сценарий логирования еды.
     """
     await message.answer(
-        "Введите название продукта.\n\n"
+        "Напиши, что ты съел 🍽️\n\n"
         "Как вводить:\n"
         "— По одному продукту за раз (например: банан, овсянка, chicken breast).\n"
         "— Можно на русском или на английском.\n"
@@ -80,7 +80,7 @@ async def food_query(
     """
     query = (message.text or "").strip()
     if not query:
-        await message.answer("Пусто. Введите продукт, например: банан")
+        await message.answer("Пусто. Напиши продукт, например: банан")
         return
 
     await state.update_data(query=query)
@@ -141,15 +141,15 @@ async def food_query(
         await state.set_state(FoodFSM.manual_kcal100)
         await message.answer(
             "Я не нашёл надёжных данных по этому продукту 😕\n\n"
-            "Введите калорийность в **ккал на 100 г** -\n"
-            "я сохраню продукт в вашу базу, и в следующий раз он будет находиться автоматически."
+            "Введи калорийность в **ккал на 100 г** -\n"
+            "Я сохраню продукт в нашу базу, и в следующий раз он будет находиться автоматически."
         )
         return
 
     # Переходим к выбору продукта
     await state.set_state(FoodFSM.pick)
     await message.answer(
-        "Выберите продукт из списка или введите вручную:",
+        "Выбери продукт из списка или введи вручную:",
         reply_markup=kb_food_pick(cleaned),
     )
 
@@ -165,7 +165,7 @@ async def food_pick(callback: CallbackQuery, state: FSMContext) -> None:
     # Ручной ввод ккал/100г
     if idx == "manual":
         await state.set_state(FoodFSM.manual_kcal100)
-        await callback.message.answer("Введите калорийность (ккал на 100 г). Например 89:")
+        await callback.message.answer("Введи калорийность (ккал на 100 г). Например 89:")
         await callback.answer()
         return
 
@@ -173,14 +173,14 @@ async def food_pick(callback: CallbackQuery, state: FSMContext) -> None:
     try:
         i = int(idx)
     except Exception:
-        await callback.message.answer("Неверный выбор. Попробуйте снова: Еда")
+        await callback.message.answer("Неверный выбор. Попробуй снова: Еда")
         await state.clear()
         await callback.answer()
         return
 
     items = data.get("items", [])
     if i < 0 or i >= len(items):
-        await callback.message.answer("Неверный выбор. Попробуйте снова: Еда")
+        await callback.message.answer("Неверный выбор. Попробуй снова: Еда")
         await state.clear()
         await callback.answer()
         return
@@ -191,7 +191,7 @@ async def food_pick(callback: CallbackQuery, state: FSMContext) -> None:
 
     kcal = picked.get("kcal_per_100g")
     kcal_txt = "?" if kcal is None else f"{float(kcal):g}"
-    await callback.message.answer(f"{picked['name']} — {kcal_txt} ккал/100г.\nСколько грамм вы съели?")
+    await callback.message.answer(f"{picked['name']} — {kcal_txt} ккал/100г.\nСколько грамм ты съел?")
     await callback.answer()
 
 
@@ -207,7 +207,7 @@ async def food_manual_kcal100(
     """
     kcal100 = _parse_float(message.text or "")
     if kcal100 is None or kcal100 <= 0 or kcal100 > 2000:
-        await message.answer("Введите ккал/100г (1..2000), например 89.")
+        await message.answer("Введи ккал/100г (1..2000), например 89.")
         return
 
     data = await state.get_data()
@@ -220,7 +220,7 @@ async def food_manual_kcal100(
 
     await state.update_data(picked={"name": query, "kcal_per_100g": float(kcal100), "source": "myDB"})
     await state.set_state(FoodFSM.grams)
-    await message.answer(f"Ок ✅ {query} — {kcal100:g} ккал/100г.\nСколько грамм вы съели?")
+    await message.answer(f"Ок ✅ {query} — {kcal100:g} ккал/100г.\nСколько грамм ты съел?")
 
 
 @router.message(FoodFSM.grams)
@@ -236,7 +236,7 @@ async def food_grams(
     """
     grams = _parse_float(message.text or "")
     if grams is None or grams <= 0 or grams > 5000:
-        await message.answer("Введите граммы (1..5000), например 150.")
+        await message.answer("Введи граммы (1..5000), например 150.")
         return
 
     data = await state.get_data()
@@ -249,7 +249,7 @@ async def food_grams(
 
     kcal100 = picked.get("kcal_per_100g")
     if kcal100 is None:
-        await message.answer("У этого варианта нет калорийности. Выберите другой или введите вручную.")
+        await message.answer("У этого варианта нет калорийности. Выбери другой или введи вручную.")
         await state.clear()
         await show_menu_for_user(message, session_factory)
         return

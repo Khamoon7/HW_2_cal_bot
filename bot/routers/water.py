@@ -40,7 +40,7 @@ async def log_water(message: Message) -> None:
     """
     Команда /log_water - показывает быстрые варианты добавления воды.
     """
-    await message.answer("Сколько воды добавить?", reply_markup=hide_menu())
+    await message.answer("Сколько воды добавим? 💧", reply_markup=hide_menu())
     await message.answer("Выбери вариант:", reply_markup=kb_water_quick())
 
 
@@ -60,7 +60,7 @@ async def water_add(
     # Ручной ввод
     if val == "custom":
         await state.set_state(WaterFSM.custom_ml)
-        await callback.message.answer("Введите количество воды в мл, например 250:")
+        await callback.message.answer("Введи количество воды в мл, например 250:")
         await callback.answer()
         return
 
@@ -81,7 +81,7 @@ async def water_custom(
     """
     ml = _parse_int(message.text or "")
     if ml is None or ml <= 0 or ml > 5000:
-        await message.answer("Введите мл (1..5000), например 250.")
+        await message.answer("Введи мл (1..5000), например 250.")
         return
 
     await _add_water(message, ml, session_factory, tg_id=message.from_user.id)
