@@ -1,7 +1,17 @@
+# Environment variables (secrets)
 .env
-.idea
-.venv
 
+# IDE settings
+.idea/
+
+# Virtual environment
+.venv/
+
+# Local databases
 *.db
 *.sqlite
 *.sqlite3
+
+# Python cache files
+**/__pycache__/
+**/*.py[cod]
