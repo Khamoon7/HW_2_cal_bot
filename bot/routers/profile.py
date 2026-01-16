@@ -145,7 +145,7 @@ async def pick_activity(message: Message, state: FSMContext) -> None:
 
     await state.update_data(activity=act)
     await state.set_state(ProfileFSM.city)
-    await message.answer("В каком городе ты находишься?\nНапример: Москва)")
+    await message.answer("В каком городе ты находишься?\nНапример: Москва")
 
 
 @router.message(ProfileFSM.city)
