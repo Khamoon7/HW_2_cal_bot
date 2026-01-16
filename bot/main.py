@@ -40,6 +40,8 @@ async def main():
     bot = Bot(token=settings.bot_token)
     dp = Dispatcher(storage=MemoryStorage())
 
+    await bot.delete_webhook(drop_pending_updates=True)
+
     # Middleware логирования апдейтов
     dp.update.middleware(LoggingMiddleware())
 
