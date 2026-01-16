@@ -60,6 +60,7 @@ async def main():
     logging.getLogger("bot").info("Бот запущен!")
     await dp.start_polling(bot)
 
+
 if __name__ == "__main__":
     # Запуск приложения
     asyncio.run(main())
